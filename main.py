@@ -2,8 +2,9 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 #custom code start
 from userInput import Ui_Dialog
-from vpython import mag, sphere, vector, color, rate
+from vpython import *
 import random, math
+
 def gforce(p1, p2):
     G = 1
     r_vec = p1.pos - p2.pos
@@ -22,7 +23,7 @@ bodiesDict1 = {
     'planet5': {'position': (30, 0, 0), 'radius': 0.5, 'color': 'purple', 'mass': 20, 'momentum': (0, -1200, 0), 'trail':True},
     'planet6': {'position': (-60, 0, 0), 'radius': 0.5, 'color': 'cyan', 'mass': 40, 'momentum': (0, -1500, 0), 'trail':True},
     'planet7': {'position': (50, 0, 0), 'radius': 0.5, 'color': 'white', 'mass': 50, 'momentum': (0, -2200, 0), 'trail':True},
-    'planet8': {'position': (-10, 20, 0), 'radius': 0.3, 'color': 'white', 'mass': 0.5, 'momentum': (0, -20, 0), 'trail':True},
+    'planet8': {'position': (-10, 20, 0), 'radius': 0.3, 'color': 'white', 'mass': 0.5, 'momentum': (0, -30, 0), 'trail':True},
 }
 bodiesDict2 = {
     'planet1': {'position': (0, 0, 0), 'radius': 10000, 'color': 'yellow', 'mass': 1e14, 'momentum': (0, 0, 0), 'trail':True},
@@ -46,16 +47,18 @@ bodiesDict3 = {
     'planet4': {'position': (0, -550, 0), 'radius': 2, 'color': 'purple', 'mass': 1, 'momentum': (5e3, 0, 0), 'trail': True}
 }
 
-def SSS(reference):
+def SSS(reference, center, cpf, fr):
+
     ref = reference
     bodies = []
     for item in ref.values():
         bodies.append( sphere( pos=vector(item['position'][0], item['position'][1], item['position'][2]), radius=item['radius'], color=getattr(color, item['color']), mass=item['mass'], momentum=vector(item['momentum'][0], item['momentum'][1], item['momentum'][2]), make_trail=item['trail'] ) )
     
-    dt = 0.0001
-    t = 0
+    dt = cpf
+
     while True:
-        rate(1000)
+        scene.center = bodies[center].pos
+        rate(fr)
         for i in range(len(bodies)):
             bodies[i].force = vector(0, 0, 0)
             for j in range(len(bodies)):
@@ -65,7 +68,6 @@ def SSS(reference):
             bodies[i].momentum += bodies[i].force * dt
         for i in range(len(bodies)):
             bodies[i].pos += bodies[i].momentum/bodies[i].mass * dt
-        t += dt
 #end
 
 class Ui_MainWindow(object):
@@ -146,6 +148,45 @@ class Ui_MainWindow(object):
         self.deleteBodyButton.setFont(font)
         self.deleteBodyButton.setObjectName("deleteBodyButton")
 
+        self.centerLabel = QtWidgets.QLabel(self.centralwidget)
+        self.centerLabel.setGeometry(QtCore.QRect(140, 420, 150, 30))
+        font = QtGui.QFont()
+        font.setFamily("MS Serif")
+        font.setPointSize(15)
+        self.centerLabel.setFont(font)
+        self.centerLabel.setAlignment(QtCore.Qt.AlignRight)
+        self.centerLabel.setObjectName("centerLabel")
+
+        self.centersCombo = QtWidgets.QComboBox(self.centralwidget)
+        self.centersCombo.setGeometry(QtCore.QRect(300, 420, 120, 30))
+        self.centersCombo.setObjectName("centersCombo")
+
+        self.change_per_frame = QtWidgets.QLineEdit(self.centralwidget)
+        self.change_per_frame.setGeometry(QtCore.QRect(300, 460, 120, 30))
+        self.change_per_frame.setObjectName("change_per_frame")
+
+        self.cpf_label = QtWidgets.QLabel(self.centralwidget)
+        self.cpf_label.setGeometry(QtCore.QRect(140, 460, 150, 30))
+        font = QtGui.QFont()
+        font.setFamily("MS Serif")
+        font.setPointSize(15)
+        self.cpf_label.setFont(font)
+        self.cpf_label.setAlignment(QtCore.Qt.AlignRight)
+        self.cpf_label.setObjectName("cpf_label")
+
+        self.framerate = QtWidgets.QLineEdit(self.centralwidget)
+        self.framerate.setGeometry(QtCore.QRect(300, 500, 120, 30))
+        self.framerate.setObjectName("framerate")
+
+        self.framerate_label = QtWidgets.QLabel(self.centralwidget)
+        self.framerate_label.setGeometry(QtCore.QRect(140, 500, 150, 30))
+        font = QtGui.QFont()
+        font.setFamily("MS Serif")
+        font.setPointSize(15)
+        self.framerate_label.setFont(font)
+        self.framerate_label.setAlignment(QtCore.Qt.AlignRight)
+        self.framerate_label.setObjectName("framerate_label")
+
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 21))
@@ -164,9 +205,7 @@ class Ui_MainWindow(object):
         self.preset2.toggled.connect(lambda: self.switchPreset(self.preset2))
         self.preset3.toggled.connect(lambda: self.switchPreset(self.preset3))
         self.custom.toggled.connect(lambda: self.switchPreset(self.custom))
-
         self.simulateButton.clicked.connect(self.start_sim)
-
         self.addBodyButton.clicked.connect(self.take_input)
         self.deleteBodyButton.clicked.connect(self.deleteItem)
         #end  
@@ -182,8 +221,24 @@ class Ui_MainWindow(object):
         self.addBodyButton.setText(_translate("MainWindow", "Add Body"))
         self.heading.setText(_translate("MainWindow", "Solar System Simulator by Faizan Ali"))
         self.deleteBodyButton.setText(_translate("MainWindow", "Delete Body"))
+        self.centerLabel.setText(_translate("MainWindow", "Center Point"))
+        self.cpf_label.setText(_translate("MainWindow", "Change per Frame"))
+        self.framerate_label.setText(_translate("MainWindow", "Frame Rate"))
+        self.framerate.setText(_translate("MainWindow", "200"))
+        self.change_per_frame.setText(_translate("MainWindow", "0.0001"))
+        
     
     #custom code
+    def update_center_list(self, dic):
+        self.centersCombo.clear()
+        if dic == self.preset1: points = bodiesDict1
+        elif dic == self.preset2: points = bodiesDict2
+        elif dic == self.preset3: points = bodiesDict3
+        elif dic == self.custom:
+            with open('custom') as f:
+                points = eval(f.read())
+        self.centersCombo.addItems(list(points.keys()))
+
     def switchPreset(self, rb):
         self.bodyList.clear()
 
@@ -244,16 +299,20 @@ class Ui_MainWindow(object):
                 self.bodyList.addItem(body)
             self.addBodyButton.setEnabled(True)
             self.deleteBodyButton.setEnabled(True)
+        
+        self.update_center_list(rb)
     
     def start_sim(self):
-        if self.preset1.isChecked(): SSS(bodiesDict1)
-        elif self.preset2.isChecked(): SSS(bodiesDict2)
-        elif self.preset3.isChecked(): SSS(bodiesDict3)
+        
+        cent, change_per_frame, framerate = self.centersCombo.currentIndex(), float(self.change_per_frame.text()), float(self.framerate.text())
+        if self.preset1.isChecked(): SSS(bodiesDict1, cent, change_per_frame, framerate)
+        elif self.preset2.isChecked(): SSS(bodiesDict2, cent, change_per_frame, framerate)
+        elif self.preset3.isChecked(): SSS(bodiesDict3, cent, change_per_frame, framerate)
         elif self.custom.isChecked():
             with open("custom") as f:
                 bodiesDictCustom = eval(f.read())
             if bodiesDictCustom:
-                SSS(bodiesDictCustom)
+                SSS(bodiesDictCustom, cent, change_per_frame, framerate)
             else:
                 print("Sorry, cannot simulate nothing")
     
@@ -264,7 +323,7 @@ class Ui_MainWindow(object):
             customDict = eval(f.read())
         for item in items:
             self.bodyList.takeItem(self.bodyList.row(item))
-            body = item.text().split('\n')[1].strip()[6:].lower()
+            body = item.text().split('\n')[1].strip()[6:]
             del customDict[body]
         with open('custom', 'w') as f:
             f.write(str(customDict))

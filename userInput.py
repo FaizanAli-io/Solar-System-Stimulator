@@ -160,9 +160,9 @@ class Ui_Dialog(object):
         moment = self.lineEdit_3.text().split(',')
         moment.append(0)
         posit.append(0)
-        posit = tuple(map(int, posit))
-        moment = tuple(map(int, moment))
-        custom[self.lineEdit.text()] = {'position': posit, 'radius': int(self.lineEdit_5.text()), 'color': self.comboBox.currentText().lower(), 'mass': int(self.lineEdit_4.text()), 'momentum': moment, 'trail':self.checkBox.isChecked()}
+        posit = tuple(map(float, posit))
+        moment = tuple(map(float, moment))
+        custom[self.lineEdit.text()] = {'position': posit, 'radius': float(self.lineEdit_5.text()), 'color': self.comboBox.currentText().lower(), 'mass': float(self.lineEdit_4.text()), 'momentum': moment, 'trail':self.checkBox.isChecked()}
         with open("custom", 'w') as f:
             f.write(str(custom))
 
