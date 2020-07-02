@@ -1,1 +1,1 @@
-{'sun': {'position': (0, 0, 0), 'radius': 1, 'color': 'yellow', 'mass': 100000, 'momentum': (0, 0, 0), 'trail': True}, 'earth': {'position': (2.0, 0.0, 0.0), 'radius': 0.4, 'color': 'blue', 'mass': 1.1, 'momentum': (0.0, 250.0, 0.0), 'trail': True}}
+{'sun': {'position': (0, 0, 0), 'radius': 1, 'color': 'yellow', 'mass': 100000, 'momentum': (0, 0, 0), 'trail': True}}

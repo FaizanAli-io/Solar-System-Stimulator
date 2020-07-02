@@ -8,6 +8,7 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QMessageBox
 
 
 class Ui_Dialog(object):
@@ -154,17 +155,28 @@ class Ui_Dialog(object):
         self.label_6.setText(_translate("Dialog", "Radius"))
 
     def saved(self):
-        with open("custom") as f:
-            custom = eval(f.read())
-        posit = self.lineEdit_2.text().split(',')
-        moment = self.lineEdit_3.text().split(',')
-        moment.append(0)
-        posit.append(0)
-        posit = tuple(map(float, posit))
-        moment = tuple(map(float, moment))
-        custom[self.lineEdit.text()] = {'position': posit, 'radius': float(self.lineEdit_5.text()), 'color': self.comboBox.currentText().lower(), 'mass': float(self.lineEdit_4.text()), 'momentum': moment, 'trail':self.checkBox.isChecked()}
-        with open("custom", 'w') as f:
-            f.write(str(custom))
+        try:
+            with open("custom") as f:
+                custom = eval(f.read())
+            posit = self.lineEdit_2.text().split(',')
+            moment = self.lineEdit_3.text().split(',')
+            moment.append(0)
+            posit.append(0)
+            posit = tuple(map(float, posit))
+            moment = tuple(map(float, moment))
+            custom[self.lineEdit.text()] = {'position': posit, 'radius': float(self.lineEdit_5.text()), 'color': self.comboBox.currentText().lower(), 'mass': float(self.lineEdit_4.text()), 'momentum': moment, 'trail':self.checkBox.isChecked()}
+            with open("custom", 'w') as f:
+                f.write(str(custom))
+        except:
+            self.popError()
+
+    def popError(self):
+        mb = QMessageBox()
+        mb.setWindowTitle("Invalid Input")
+        mb.setText('You dun goofed mate')
+        mb.setIcon(QMessageBox.Warning)
+
+        x = mb.exec_()
 
 if __name__ == "__main__":
     import sys
